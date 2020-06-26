@@ -50,7 +50,7 @@ def dice_permutations(number_of_dice: int, sides: int) -> Iterator[List[int]]:
     """Generates the possible permutations of a set of dice in order.
 
     For example, with two six-sided dice this generator will produce lists [1, 1],
-    [1, 2], [1, 3], ... [5, 6], [6, 6].
+    [1, 2], [1, 3], ... [6, 5], [6, 6].
     """
     current = [1] * number_of_dice
 
