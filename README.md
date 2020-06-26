@@ -25,6 +25,13 @@ cd bip39_dice
 poetry run pytest
 ```
 
+## OOS Notice
+
+Test vectors have been borrowed from
+[python-mnemonic](https://github.com/trezor/python-mnemonic/blob/master/vectors.json)
+which is available under the MIT license. These are used only in the unit
+tests.
+
 ## See Also
 
 * [BIP-39](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki)

@@ -8,6 +8,7 @@ license = "AGPL-3.0"
 [tool.poetry.dependencies]
 python = "^3.8"
 mnemonic = "^0.19"
+bitarray = "^1.2.2"
 
 [tool.poetry.dev-dependencies]
 black = "^19.10b0"
