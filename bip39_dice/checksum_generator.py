@@ -32,15 +32,16 @@ class ChecksumGenerator:
         if number_of_words not in [11, 14, 17, 20, 23]:
             raise ValueError("The entropy phrase isn't the right length")
 
-        coin_flips_by_phrase_length = {
-            11: 11 - 4,
-            14: 11 - 5,
-            17: 11 - 6,
-            20: 11 - 7,
-            23: 11 - 8,
-        }
+        desired_bits_entropy_plus_checksum = (number_of_words + 1) * 11
 
-        if len(coin_flips) != coin_flips_by_phrase_length[number_of_words]:
+        number_of_checksum_bits = desired_bits_entropy_plus_checksum // 32
+
+        assert (
+            number_of_checksum_bits + number_of_checksum_bits * 32
+            == desired_bits_entropy_plus_checksum
+        )
+
+        if len(coin_flips) != 11 - number_of_checksum_bits:
             raise ValueError("The coin flip bitstring isn't the right length")
 
         self.ent_phrase = ent_phrase
