@@ -7,6 +7,8 @@ def word_to_bitstring(mnemo: Mnemonic, word: str) -> str:
     if index < 0:
         raise LookupError('Unable to find "%s" in word list.' % word)
 
+    # The format string "011b" means "print number in binary with eleven digits, left
+    # padded with zeros".
     eleven_bit_string = format(index, "011b")
 
     return eleven_bit_string
@@ -27,22 +29,39 @@ class ChecksumGenerator:
 
         self.mnemo = mnemo
 
+        # The phrase should be space separated
         number_of_words = len(ent_phrase.split(" "))
 
+        # See the BIP-39 specification for the allowed lengths (12, 15, 18, 21, 24).
+        # Since we are generating the words using dice, the last word is not included
+        # in our initial input.
         if number_of_words not in [11, 14, 17, 20, 23]:
             raise ValueError("The entropy phrase isn't the right length")
 
+        # Each word in the phrase is represented by eleven bits. Here we find the total
+        # number of bits in the final phrase.
         desired_bits_entropy_plus_checksum = (number_of_words + 1) * 11
 
+        # The initial entropy of a standard BIP-39 phrase is a multiple of 32 bits. The
+        # number of checksum bits is however many extra bits on top of that which will
+        # bring the total to be divisible by eleven. Thus, we can use integer division
+        # to ignore the checksum bits to work backwards and find how many checksum bits
+        # there should be.
         number_of_checksum_bits = desired_bits_entropy_plus_checksum // 32
 
+        # Logically, the following relations should also hold.
+        assert number_of_checksum_bits == desired_bits_entropy_plus_checksum % 32
         assert (
             number_of_checksum_bits + number_of_checksum_bits * 32
             == desired_bits_entropy_plus_checksum
         )
 
-        if len(coin_flips) != 11 - number_of_checksum_bits:
-            raise ValueError("The coin flip bitstring isn't the right length")
+        number_of_coin_flip_bits = 11 - number_of_checksum_bits
+        if len(coin_flips) != number_of_coin_flip_bits:
+            raise ValueError(
+                f"The coin flip bitstring isn't the right length"
+                f" (expected {number_of_coin_flip_bits})"
+            )
 
         self.ent_phrase = ent_phrase
         self.coin_flips = coin_flips
