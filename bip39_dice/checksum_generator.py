@@ -27,7 +27,9 @@ class ChecksumGenerator:
 
         self.mnemo = mnemo
 
-        if len(ent_phrase.split(" ")) not in [11, 14, 17, 20, 23]:
+        number_of_words = len(ent_phrase.split(" "))
+
+        if number_of_words not in [11, 14, 17, 20, 23]:
             raise ValueError("The entropy phrase isn't the right length")
 
         coin_flips_by_phrase_length = {
@@ -38,7 +40,7 @@ class ChecksumGenerator:
             23: 11 - 8,
         }
 
-        if len(coin_flips) != coin_flips_by_phrase_length[len(ent_phrase.split(" "))]:
+        if len(coin_flips) != coin_flips_by_phrase_length[number_of_words]:
             raise ValueError("The coin flip bitstring isn't the right length")
 
         self.ent_phrase = ent_phrase
