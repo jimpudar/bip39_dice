@@ -22,6 +22,7 @@ class ChecksumGenerator:
     # pylint: disable=too-many-instance-attributes
     """An object which can convert entropy from diceware words and coin flips into a
     valid BIP-39 phrase."""
+
     def __init__(self, ent_phrase: str, coin_flips: str, mnemo: Mnemonic):
         """
         :param ent_phrase: the initial entropy phrase (ENT), space separated. For
@@ -104,7 +105,7 @@ class ChecksumGenerator:
 
         # Convert the digest into a binary bitstring and take the checksum bits from the
         # beginning of the string
-        return format(int_hash, "0256b")[:self.number_of_checksum_bits]
+        return format(int_hash, "0256b")[: self.number_of_checksum_bits]
 
     def calculate_last_word(self) -> str:
         """Using the "extra" bits and checksum bits, look up the last word of the
