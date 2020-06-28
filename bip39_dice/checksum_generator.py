@@ -1,9 +1,12 @@
+"""Module dealing with BIP-39 logic at the bit level"""
 import hashlib
 
 from mnemonic import Mnemonic
 
 
 def word_to_bitstring(mnemo: Mnemonic, word: str) -> str:
+    """Given a BIP-39 word, find it's index and return that as an eleven bit width
+    bitstring."""
     index = mnemo.wordlist.index(word)
     if index < 0:
         raise LookupError('Unable to find "%s" in word list.' % word)
@@ -16,6 +19,9 @@ def word_to_bitstring(mnemo: Mnemonic, word: str) -> str:
 
 
 class ChecksumGenerator:
+    # pylint: disable=too-many-instance-attributes
+    """An object which can convert entropy from diceware words and coin flips into a
+    valid BIP-39 phrase."""
     def __init__(self, ent_phrase: str, coin_flips: str, mnemo: Mnemonic):
         """
         :param ent_phrase: the initial entropy phrase (ENT), space separated. For
@@ -77,6 +83,8 @@ class ChecksumGenerator:
         assert self.phrase == mnemo.to_mnemonic(self.ent)
 
     def ent_phrase_and_coin_flips_to_bytes(self) -> bytes:
+        """The reverse of what Mnemonic normally does - convert the words (and extra
+        bits) into the entropy bytes."""
         bits = ""
 
         for word in self.ent_phrase.split(" "):
@@ -84,11 +92,10 @@ class ChecksumGenerator:
 
         bits += self.coin_flips
 
-        # TODO: We probably don't need to add 7 here since the number of bits should
-        #  always be a multiple of 8
-        return int(bits, 2).to_bytes((len(bits) + 7) // 8, "big")
+        return int(bits, 2).to_bytes(len(bits) // 8, "big")
 
     def calculate_checksum_bitstring(self) -> str:
+        """Use the BIP-39 logic to calculate the checksum bits."""
         # Get the digest of the SHA256 hash as a hexadecimal string
         hex_hash = hashlib.sha256(self.ent).hexdigest()
 
@@ -100,6 +107,8 @@ class ChecksumGenerator:
         return format(int_hash, "0256b")[:self.number_of_checksum_bits]
 
     def calculate_last_word(self) -> str:
+        """Using the "extra" bits and checksum bits, look up the last word of the
+        phrase."""
         # The index of the last word is found by concatenating the coin flips with the
         # checksum. See BIP-39 for the details.
         last_word_index_binary = self.coin_flips + self.checksum_bitstring
