@@ -1,5 +1,3 @@
-import pytest
-
 from bip39_dice.dice_mapper import dice_permutations
 
 

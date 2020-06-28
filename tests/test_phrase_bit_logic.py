@@ -2,8 +2,8 @@ import json
 import pathlib
 from typing import Iterable, List
 
-import pytest
-from mnemonic import Mnemonic
+import pytest  # type: ignore
+from mnemonic import Mnemonic  # type: ignore
 
 from bip39_dice.checksum_generator import ChecksumGenerator, word_to_bitstring
 

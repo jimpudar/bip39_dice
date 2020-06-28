@@ -1,7 +1,8 @@
 """Module dealing with BIP-39 logic at the bit level"""
 import hashlib
 
-from mnemonic import Mnemonic
+# Remove type: ignore when type information is published in (?) v0.20
+from mnemonic import Mnemonic  # type: ignore
 
 
 def word_to_bitstring(mnemo: Mnemonic, word: str) -> str:
