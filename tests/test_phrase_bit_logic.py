@@ -21,6 +21,11 @@ class MnemonicVector:
 
         return " ".join(words[0:-1])
 
+    def last_word(self) -> str:
+        words = self.mnemonic_phrase.split(" ")
+
+        return words[-1]
+
     def coin_flips_bitstring(self) -> str:
         """Finds the bits of the last word which belong to the initial entropy"""
 
@@ -82,7 +87,6 @@ def test_english_word_to_bitstring(mnemo):
 
 
 def test_english_phrase_to_bytearray(mnemo, english_vectors):
-
     for vector in english_vectors:
         csg = ChecksumGenerator(
             vector.phrase_without_checksum_word(), vector.coin_flips_bitstring(), mnemo
@@ -90,4 +94,15 @@ def test_english_phrase_to_bytearray(mnemo, english_vectors):
 
         actual = csg.ent
         expected = vector.input_entropy_bytes()
+        assert actual == expected
+
+
+def test_last_word(mnemo, english_vectors):
+    for vector in english_vectors:
+        csg = ChecksumGenerator(
+            vector.phrase_without_checksum_word(), vector.coin_flips_bitstring(), mnemo
+        )
+
+        actual = csg.last_word
+        expected = vector.last_word()
         assert actual == expected

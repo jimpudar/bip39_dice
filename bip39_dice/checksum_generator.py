@@ -1,4 +1,5 @@
-from bitarray import bitarray
+import hashlib
+
 from mnemonic import Mnemonic
 
 
@@ -47,16 +48,16 @@ class ChecksumGenerator:
         # bring the total to be divisible by eleven. Thus, we can use integer division
         # to ignore the checksum bits to work backwards and find how many checksum bits
         # there should be.
-        number_of_checksum_bits = desired_bits_entropy_plus_checksum // 32
+        self.number_of_checksum_bits = desired_bits_entropy_plus_checksum // 32
 
         # Logically, the following relations should also hold.
-        assert number_of_checksum_bits == desired_bits_entropy_plus_checksum % 32
+        assert self.number_of_checksum_bits == desired_bits_entropy_plus_checksum % 32
         assert (
-            number_of_checksum_bits + number_of_checksum_bits * 32
+            self.number_of_checksum_bits + self.number_of_checksum_bits * 32
             == desired_bits_entropy_plus_checksum
         )
 
-        number_of_coin_flip_bits = 11 - number_of_checksum_bits
+        number_of_coin_flip_bits = 11 - self.number_of_checksum_bits
         if len(coin_flips) != number_of_coin_flip_bits:
             raise ValueError(
                 f"The coin flip bitstring isn't the right length"
@@ -66,6 +67,14 @@ class ChecksumGenerator:
         self.ent_phrase = ent_phrase
         self.coin_flips = coin_flips
         self.ent = self.ent_phrase_and_coin_flips_to_bytes()
+        self.checksum_bitstring = self.calculate_checksum_bitstring()
+        self.last_word = self.calculate_last_word()
+
+        self.phrase = self.ent_phrase + " " + self.last_word
+
+        # As a double check, we can make sure that Mnemonic also came to the same last
+        # word as we did.
+        assert self.phrase == mnemo.to_mnemonic(self.ent)
 
     def ent_phrase_and_coin_flips_to_bytes(self) -> bytes:
         bits = ""
@@ -78,3 +87,23 @@ class ChecksumGenerator:
         # TODO: We probably don't need to add 7 here since the number of bits should
         #  always be a multiple of 8
         return int(bits, 2).to_bytes((len(bits) + 7) // 8, "big")
+
+    def calculate_checksum_bitstring(self) -> str:
+        # Get the digest of the SHA256 hash as a hexadecimal string
+        hex_hash = hashlib.sha256(self.ent).hexdigest()
+
+        # Convert the digest into an integer
+        int_hash = int(hex_hash, 16)
+
+        # Convert the digest into a binary bitstring and take the checksum bits from the
+        # beginning of the string
+        return format(int_hash, "0256b")[:self.number_of_checksum_bits]
+
+    def calculate_last_word(self) -> str:
+        # The index of the last word is found by concatenating the coin flips with the
+        # checksum. See BIP-39 for the details.
+        last_word_index_binary = self.coin_flips + self.checksum_bitstring
+
+        last_word_index = int(last_word_index_binary, 2)
+
+        return self.mnemo.wordlist[last_word_index]
