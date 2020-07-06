@@ -79,6 +79,10 @@ class ChecksumGenerator:
 
         self.phrase = self.ent_phrase + " " + self.last_word
 
+        # We can use Mnemonic's built in checksum checker to make sure we have a valid
+        # phrase.
+        assert mnemo.check(self.phrase)
+
         # As a double check, we can make sure that Mnemonic also came to the same last
         # word as we did.
         assert self.phrase == mnemo.to_mnemonic(self.ent)
