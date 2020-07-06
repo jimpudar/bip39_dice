@@ -6,7 +6,7 @@ from mnemonic import Mnemonic  # type: ignore
 
 
 def word_to_bitstring(mnemo: Mnemonic, word: str) -> str:
-    """Given a BIP-39 word, find it's index and return that as an eleven bit width
+    """Given a BIP-39 word, find its index and return that as an eleven bit width
     bitstring."""
     index = mnemo.wordlist.index(word)
     if index < 0:
@@ -47,8 +47,11 @@ class ChecksumGenerator:
         if number_of_words not in [11, 14, 17, 20, 23]:
             raise ValueError("The entropy phrase isn't the right length")
 
-        # Each word in the phrase is represented by eleven bits. Here we find the total
-        # number of bits in the final phrase.
+        # Because there are 2048 words in the dictionary, the range of word indices is
+        # 0 - 2048. Represented in binary, this range is 0b0 - 0b11111111111. If we left
+        # pad each binary index with 0s, we can say that each word in the phrase is
+        # represented by eleven bits (i.e. the indices range from 0b00000000000 -
+        # 0b11111111111). Here we find the total number of bits in the final phrase.
         desired_bits_entropy_plus_checksum = (number_of_words + 1) * 11
 
         # The initial entropy of a standard BIP-39 phrase is a multiple of 32 bits. The
@@ -58,12 +61,8 @@ class ChecksumGenerator:
         # there should be.
         self.number_of_checksum_bits = desired_bits_entropy_plus_checksum // 32
 
-        # Logically, the following relations should also hold.
+        # Logically, the following relation should also hold.
         assert self.number_of_checksum_bits == desired_bits_entropy_plus_checksum % 32
-        assert (
-            self.number_of_checksum_bits + self.number_of_checksum_bits * 32
-            == desired_bits_entropy_plus_checksum
-        )
 
         number_of_coin_flip_bits = 11 - self.number_of_checksum_bits
         if len(coin_flips) != number_of_coin_flip_bits:
