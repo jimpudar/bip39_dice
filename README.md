@@ -88,6 +88,19 @@ then completely disconnect it from the Internet before running the script.
 After power cycling the Raspberry Pi, and wiping the SD card, it should be
 safe to connect it to the Internet again.
 
+Once you are on a non-networked machine, run `find_checksum.py` and follow
+the prompts. The final checksum word will be printed to STDOUT. For example:
+
+```text
+% python find_checksum.py
+Enter the first N - 1 words, space separated:
+zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo zoo
+Enter the extra M bits (e.g. 011):
+1100110
+
+snap
+```
+
 ## Running Tests
 
 ```shell script
