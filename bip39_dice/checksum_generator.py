@@ -21,6 +21,10 @@ import hashlib
 from mnemonic import Mnemonic  # type: ignore
 
 
+class LogicError(Exception):
+    """Raised when a logical error has been made by the programmer of this software."""
+
+
 def word_to_bitstring(mnemo: Mnemonic, word: str) -> str:
     """Given a BIP-39 word, find its index and return that as an eleven bit width
     bitstring."""
@@ -64,7 +68,7 @@ class ChecksumGenerator:
             raise ValueError("The entropy phrase isn't the right length")
 
         # Because there are 2048 words in the dictionary, the range of word indices is
-        # 0 - 2048. Represented in binary, this range is 0b0 - 0b11111111111. If we left
+        # 0 - 2047. Represented in binary, this range is 0b0 - 0b11111111111. If we left
         # pad each binary index with 0s, we can say that each word in the phrase is
         # represented by eleven bits (i.e. the indices range from 0b00000000000 -
         # 0b11111111111). Here we find the total number of bits in the final phrase.
@@ -78,7 +82,8 @@ class ChecksumGenerator:
         self.number_of_checksum_bits = desired_bits_entropy_plus_checksum // 32
 
         # Logically, the following relation should also hold.
-        assert self.number_of_checksum_bits == desired_bits_entropy_plus_checksum % 32
+        if self.number_of_checksum_bits != desired_bits_entropy_plus_checksum % 32:
+            raise LogicError("//32 != %32. Please file a bug.")
 
         number_of_coin_flip_bits = 11 - self.number_of_checksum_bits
         if len(coin_flips) != number_of_coin_flip_bits:
@@ -97,11 +102,15 @@ class ChecksumGenerator:
 
         # We can use Mnemonic's built in checksum checker to make sure we have a valid
         # phrase.
-        assert mnemo.check(self.phrase)
+        if not mnemo.check(self.phrase):
+            raise LogicError("Mnemonic check failed. Please file a bug.")
 
         # As a double check, we can make sure that Mnemonic also came to the same last
         # word as we did.
-        assert self.phrase == mnemo.to_mnemonic(self.ent)
+        if not self.phrase == mnemo.to_mnemonic(self.ent):
+            raise LogicError(
+                "Mnemonic entropy to phrase conversion failed. Please file a bug."
+            )
 
     def ent_phrase_and_coin_flips_to_bytes(self) -> bytes:
         """The reverse of what Mnemonic normally does - convert the words (and extra
