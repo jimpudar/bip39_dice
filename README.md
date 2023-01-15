@@ -47,8 +47,10 @@ words. Choose one of these numbers. We will refer to this number as `N`.
 This project includes a utility for generating the dice roll -> wordlist
 mapping, although some other such mappings already exist on the Internet.
 
-* <https://github.com/dnixty/BIP39-diceware>
-* <https://github.com/taelfrinn/Bip39-diceware>
+Some of these lists cause certain words to be more likely to roll than others,
+so choose wisely. This one claims to have the same odds for every word:
+
+* https://github.com/sarpulhu/dicebip39
 
 ### Roll the Dice and Flip the Coin
 
